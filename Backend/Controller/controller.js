@@ -1,13 +1,16 @@
 const Data = require("../Model/dataModel");
 
-let apiCallCount = 0; // Initialize count
+let addCount = 0;
+let updateCount = 0; // Initialize count
 
 
 const createData = async (req, res) => {
+        console.time('addData');
     try {
         const newData = new Data(req.body);
         await newData.save();
-        incrementAPICount(); // Increment count on API call
+        console.timeEnd('addData');
+        addCount++; // Increment count on API call
         res.json({ message: 'Data added successfully!',newData:newData });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -25,13 +28,15 @@ const getData = async (req, res) => {
 }
 
 const updateData = async (req, res) => {
+    console.time('editData');
     try {
         const { id } = req.params;
         const updatedData = await Data.findByIdAndUpdate(id, req.body, { new: true }); // Return updated document
         if (!updatedData) {
             return res.status(404).json({ error: 'Data not found' });
         }
-        incrementAPICount(); // Increment count on API call
+        console.timeEnd('editData');
+        updateCount++// Increment count on API call
         res.json({ message: 'Data updated successfully!',updatedData:updatedData });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -39,11 +44,9 @@ const updateData = async (req, res) => {
 };
 
 const getCount = (req, res) => {
-    res.json({ count: apiCallCount });
+    res.json({ addCount, updateCount });
 };
-const incrementAPICount = () => {
-    apiCallCount++;
-};
+
 
 module.exports = {
     createData,
